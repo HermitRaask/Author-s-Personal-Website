@@ -28,7 +28,7 @@ export const books: Book[] = [
     year: 2025,
     genres: ["Техномагия", "Киберпанк"],
     workFormat: "Рассказ",
-    coverImage: "",
+    coverImage: "/images/1.jpg",
     chapters: [{ id: 1, title: "Одержимый", content: chapterContents["1-1"] }],
   },
   {
@@ -38,7 +38,7 @@ export const books: Book[] = [
     year: 2023,
     genres: ["Киберпанк"],
     workFormat: "Рассказ",
-    coverImage: "",
+    coverImage: "/images/2.jpg",
     chapters: [{ id: 1, title: "Дар жизни", content: chapterContents["2-1"] }],
   },
   {
@@ -48,7 +48,7 @@ export const books: Book[] = [
     year: 2022,
     genres: ["Фантастика"],
     workFormat: "Рассказ",
-    coverImage: "",
+    coverImage: "/images/3.jpg",
     chapters: [{ id: 1, title: "Тень войны", content: chapterContents["3-1"] }],
   },
   {
@@ -58,7 +58,7 @@ export const books: Book[] = [
     year: 2023,
     genres: ["Киберпанк", "Тёмное фэнтези"],
     workFormat: "Роман",
-    coverImage: "",
+    coverImage: "/images/4.jpg",
     chapters: [
       {
         id: 1,
@@ -75,7 +75,7 @@ export const books: Book[] = [
     year: 2025,
     genres: ["Фантастика"],
     workFormat: "Роман",
-    coverImage: "",
+    coverImage: "/images/5.jpg",
     chapters: [
       {
         id: 1,
@@ -96,7 +96,7 @@ export const books: Book[] = [
     year: 2022,
     genres: ["Попаданчество"],
     workFormat: "Роман",
-    coverImage: "",
+    coverImage: "/images/6.jpg",
     chapters: [
       { id: 1, title: "Пролог", content: chapterContents["6-1"] },
       { id: 2, title: "Глава 1. Город", content: chapterContents["6-2"] },
