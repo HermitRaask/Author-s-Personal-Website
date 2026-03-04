@@ -17,7 +17,8 @@ export function Home() {
     }
   }, []);
 
-  const latestBooks = books.slice(0, 3);
+const FEATURED_BOOK_IDS = [1, 4, 6];
+const latestBooks = books.filter((book) => FEATURED_BOOK_IDS.includes(book.id));
 
   return (
     <div className="w-full">
