@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createHashRouter } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { Home } from "./components/Home";
 import { LatestBooks } from "./components/LatestBooks";
