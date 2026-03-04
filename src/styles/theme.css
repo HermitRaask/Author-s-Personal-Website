@@ -178,4 +178,9 @@
     font-weight: var(--font-weight-normal);
     line-height: 1.5;
   }
+
+  /* Автоматический отступ первой строки только в тексте глав */
+  .prose-reader p {
+    text-indent: 1.5em;
+  }
 }

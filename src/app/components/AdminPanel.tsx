@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, X, Upload } from "lucide-react";
-import { Book } from "../data/books";
+import { Book, WORK_FORMATS, migrateBooks, type WorkFormat } from "../data/books";
 
 export function AdminPanel() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -10,7 +10,8 @@ export function AdminPanel() {
     title: "",
     description: "",
     year: new Date().getFullYear(),
-    genre: "",
+    genres: [] as string[],
+    workFormat: "Рассказ" as WorkFormat,
     coverImage: "",
   });
 
@@ -21,7 +22,9 @@ export function AdminPanel() {
   const loadBooks = () => {
     const savedBooks = localStorage.getItem("books");
     if (savedBooks) {
-      setBooks(JSON.parse(savedBooks));
+      const migrated = migrateBooks(JSON.parse(savedBooks));
+      setBooks(migrated);
+      localStorage.setItem("books", JSON.stringify(migrated));
     } else {
       // Загружаем начальные книги из модуля
       import("../data/books").then((module) => {
@@ -65,7 +68,8 @@ export function AdminPanel() {
       title: book.title,
       description: book.description,
       year: book.year,
-      genre: book.genre,
+      genres: book.genres || [],
+      workFormat: book.workFormat ?? "Рассказ",
       coverImage: book.coverImage,
     });
     setIsEditing(true);
@@ -83,7 +87,8 @@ export function AdminPanel() {
       title: "",
       description: "",
       year: new Date().getFullYear(),
-      genre: "",
+      genres: [],
+      workFormat: "Рассказ",
       coverImage: "",
     });
     setEditingBook(null);
@@ -144,15 +149,21 @@ export function AdminPanel() {
 
               <div>
                 <label className="block text-sm mb-2 text-neutral-700">
-                  Жанр
+                  Жанры (через запятую)
                 </label>
                 <input
                   type="text"
                   required
-                  value={formData.genre}
-                  onChange={(e) =>
-                    setFormData({ ...formData, genre: e.target.value })
-                  }
+                  value={formData.genres.join(", ")}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const genresArray = value
+                      .split(",")
+                      .map((g) => g.trim())
+                      .filter(Boolean);
+                    setFormData({ ...formData, genres: genresArray });
+                  }}
+                  placeholder="Например: Киберпанк, Тёмное фэнтези"
                   className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900"
                 />
               </div>
@@ -174,18 +185,72 @@ export function AdminPanel() {
 
               <div>
                 <label className="block text-sm mb-2 text-neutral-700">
-                  URL обложки
+                  Формат
                 </label>
-                <input
-                  type="url"
-                  required
-                  value={formData.coverImage}
+                <select
+                  value={formData.workFormat}
                   onChange={(e) =>
-                    setFormData({ ...formData, coverImage: e.target.value })
+                    setFormData({
+                      ...formData,
+                      workFormat: e.target.value as WorkFormat,
+                    })
                   }
-                  placeholder="https://..."
                   className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900"
-                />
+                >
+                  {WORK_FORMATS.map((format) => (
+                    <option key={format} value={format}>
+                      {format}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm mb-2 text-neutral-700">
+                  Обложка книги
+                </label>
+                <div className="flex items-center gap-4">
+                  <div>
+                    <label className="inline-flex items-center gap-2 px-4 py-2 border border-dashed border-neutral-300 rounded-lg cursor-pointer hover:bg-neutral-50 text-sm text-neutral-700">
+                      <Upload className="w-4 h-4" />
+                      <span>Выбрать файл</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+
+                          const reader = new FileReader();
+                          reader.onload = () => {
+                            const result = reader.result;
+                            if (typeof result === "string") {
+                              setFormData((prev) => ({
+                                ...prev,
+                                coverImage: result,
+                              }));
+                            }
+                          };
+                          reader.readAsDataURL(file);
+                        }}
+                      />
+                    </label>
+                    <p className="mt-1 text-xs text-neutral-500">
+                      Поддерживаются любые изображения; файл будет сохранён в localStorage в виде data URL.
+                    </p>
+                  </div>
+
+                  {formData.coverImage && (
+                    <div className="w-16 h-24 rounded overflow-hidden border border-neutral-200 bg-neutral-100">
+                      <img
+                        src={formData.coverImage}
+                        alt="Предпросмотр обложки"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -241,7 +306,7 @@ export function AdminPanel() {
                 <div className="flex-1">
                   <h3 className="text-lg text-neutral-900 mb-1">{book.title}</h3>
                   <p className="text-sm text-neutral-600 mb-2">
-                    {book.genre} • {book.year}
+                    {book.workFormat ?? "—"} • {book.genres?.join(", ")} • {book.year}
                   </p>
                   <p className="text-sm text-neutral-600 line-clamp-2">
                     {book.description}

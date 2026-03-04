@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { Book } from "../data/books";
-import { Calendar, Tag } from "lucide-react";
+import { Book, migrateBooks } from "../data/books";
+import { Calendar, Tag, FileText } from "lucide-react";
 
 export function LatestBooks() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -9,7 +9,7 @@ export function LatestBooks() {
   useEffect(() => {
     const savedBooks = localStorage.getItem("books");
     if (savedBooks) {
-      setBooks(JSON.parse(savedBooks));
+      setBooks(migrateBooks(JSON.parse(savedBooks)));
     } else {
       import("../data/books").then((module) => {
         setBooks(module.books);
@@ -43,19 +43,29 @@ export function LatestBooks() {
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   />
                 </div>
-                <div className="md:w-1/2 p-6 flex flex-col justify-center">
-                  <div className="flex flex-wrap items-center gap-3 mb-4">
+                <div className="md:w-1/2 p-6 flex flex-col justify-start">
+                  <h2 className="text-2xl sm:text-3xl mb-3 text-neutral-900">
+                    {book.title}
+                  </h2>
+                  <p className="text-neutral-600 leading-relaxed mb-4">
+                    {book.description.length > 134
+                      ? `${book.description.slice(0, 134)}...`
+                      : book.description}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-3 mt-auto">
+                    <span className="inline-flex items-center gap-1 bg-neutral-100 px-3 py-1 rounded-full text-sm text-neutral-700">
+                      <FileText className="w-4 h-4" />
+                      {book.workFormat ?? "—"}
+                    </span>
                     <span className="inline-flex items-center gap-1 bg-neutral-100 px-3 py-1 rounded-full text-sm text-neutral-700">
                       <Tag className="w-4 h-4" />
-                      {book.genre}
+                      {book.genres?.join(", ")}
                     </span>
                     <span className="inline-flex items-center gap-1 text-sm text-neutral-600">
                       <Calendar className="w-4 h-4" />
                       {book.year}
                     </span>
                   </div>
-                  <h2 className="text-2xl sm:text-3xl mb-3 text-neutral-900">{book.title}</h2>
-                  <p className="text-neutral-600 leading-relaxed">{book.description}</p>
                 </div>
               </div>
             </Link>

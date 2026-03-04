@@ -1,7 +1,7 @@
 import { Link } from "react-router";
-import { ArrowRight, BookOpen, Feather } from "lucide-react";
+import { ArrowRight, BookOpen, Feather, FileText, Tag, Calendar } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Book } from "../data/books";
+import { Book, migrateBooks } from "../data/books";
 
 export function Home() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -9,7 +9,7 @@ export function Home() {
   useEffect(() => {
     const savedBooks = localStorage.getItem("books");
     if (savedBooks) {
-      setBooks(JSON.parse(savedBooks));
+      setBooks(migrateBooks(JSON.parse(savedBooks)));
     } else {
       import("../data/books").then((module) => {
         setBooks(module.books);
@@ -70,8 +70,18 @@ export function Home() {
                 </div>
                 <div className="p-6">
                   <div className="flex items-center gap-2 text-sm text-neutral-600 mb-2">
-                    <span className="bg-neutral-100 px-3 py-1 rounded-full">{book.genre}</span>
-                    <span>{book.year}</span>
+                    <span className="inline-flex items-center gap-1 bg-neutral-100 px-3 py-1 rounded-full">
+                      <FileText className="w-4 h-4" />
+                      {book.workFormat ?? "—"}
+                    </span>
+                    <span className="inline-flex items-center gap-1 bg-neutral-100 px-3 py-1 rounded-full">
+                      <Tag className="w-4 h-4" />
+                      {book.genres?.join(", ")}
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      {book.year}
+                    </span>
                   </div>
                   <h3 className="text-xl mb-2 text-neutral-900">{book.title}</h3>
                   <p className="text-neutral-600 line-clamp-3">{book.description}</p>

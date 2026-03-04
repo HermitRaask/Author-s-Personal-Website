@@ -1,7 +1,7 @@
 import { useParams, Link, useNavigate } from "react-router";
 import { ArrowLeft, Calendar, Tag, BookOpenText, List } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Book } from "../data/books";
+import { Book, migrateBooks } from "../data/books";
 
 export function BookDetail() {
   const { id } = useParams();
@@ -15,7 +15,7 @@ export function BookDetail() {
       let books: Book[] = [];
       
       if (savedBooks) {
-        books = JSON.parse(savedBooks);
+        books = migrateBooks(JSON.parse(savedBooks));
       } else {
         import("../data/books").then((module) => {
           books = module.books;
@@ -24,7 +24,7 @@ export function BookDetail() {
         });
         return;
       }
-      
+
       const foundBook = books.find((b) => b.id === parseInt(id || "0"));
       setBook(foundBook || null);
     };
@@ -64,8 +64,8 @@ export function BookDetail() {
         {/* Book Content */}
         <div className="bg-white rounded-xl shadow-sm border border-neutral-200 overflow-hidden">
           <div className="md:flex">
-            {/* Cover Image */}
-            <div className="md:w-1/2 lg:w-2/5">
+            {/* Cover Image — ширина уменьшена на 10% (90% от 50% и 40%) */}
+            <div className="md:w-[45%] lg:w-[36%]">
               <div className="aspect-[3/4] md:aspect-auto md:h-full bg-neutral-100">
                 <img
                   src={book.coverImage}
@@ -76,11 +76,11 @@ export function BookDetail() {
             </div>
 
             {/* Book Info */}
-            <div className="md:w-1/2 lg:w-3/5 p-8 lg:p-12">
+            <div className="md:w-[55%] lg:w-[64%] p-8 lg:p-12">
               <div className="flex flex-wrap items-center gap-3 mb-6">
                 <span className="inline-flex items-center gap-2 bg-neutral-100 px-4 py-2 rounded-full text-neutral-700">
                   <Tag className="w-4 h-4" />
-                  {book.genre}
+                  {book.genres?.join(", ")}
                 </span>
                 <span className="inline-flex items-center gap-2 text-neutral-600">
                   <Calendar className="w-4 h-4" />
@@ -147,8 +147,16 @@ export function BookDetail() {
                     <h2 className="text-2xl mb-4 text-neutral-900">О книге</h2>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <p className="text-neutral-500 mb-1">Жанр</p>
-                        <p className="text-neutral-900">{book.genre}</p>
+                        <p className="text-neutral-500 mb-1">Формат</p>
+                        <p className="text-neutral-900">
+                          {book.workFormat ?? "—"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-neutral-500 mb-1">Жанры</p>
+                        <p className="text-neutral-900">
+                          {book.genres?.join(", ")}
+                        </p>
                       </div>
                       <div>
                         <p className="text-neutral-500 mb-1">Год издания</p>

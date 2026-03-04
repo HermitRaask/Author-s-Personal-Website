@@ -1,7 +1,10 @@
 import { useParams, useNavigate, Link } from "react-router";
 import { ArrowLeft, ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Book } from "../data/books";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import { Book, migrateBooks } from "../data/books";
 
 export function BookReader() {
   const { id, chapterId } = useParams();
@@ -14,7 +17,7 @@ export function BookReader() {
       let books: Book[] = [];
       
       if (savedBooks) {
-        books = JSON.parse(savedBooks);
+        books = migrateBooks(JSON.parse(savedBooks));
       } else {
         import("../data/books").then((module) => {
           books = module.books;
@@ -111,10 +114,13 @@ export function BookReader() {
             {currentChapter.title}
           </h1>
 
-          <div className="prose prose-lg max-w-none">
-            <p className="text-neutral-700 leading-relaxed whitespace-pre-wrap">
+          <div className="prose prose-lg prose-reader max-w-none text-neutral-700 leading-relaxed">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw]}
+            >
               {currentChapter.content}
-            </p>
+            </ReactMarkdown>
           </div>
         </div>
 

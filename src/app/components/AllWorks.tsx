@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { Book } from "../data/books";
-import { Calendar, Tag, Search } from "lucide-react";
+import { Book, WORK_FORMATS, migrateBooks } from "../data/books";
+import { Calendar, Tag, Search, BookMarked } from "lucide-react";
 
 export function AllWorks() {
   const [books, setBooks] = useState<Book[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedGenre, setSelectedGenre] = useState<string>("all");
+  const [selectedFormat, setSelectedFormat] = useState<string>("all");
 
   useEffect(() => {
     const savedBooks = localStorage.getItem("books");
     if (savedBooks) {
-      setBooks(JSON.parse(savedBooks));
+      setBooks(migrateBooks(JSON.parse(savedBooks)));
     } else {
       import("../data/books").then((module) => {
         setBooks(module.books);
@@ -19,14 +20,26 @@ export function AllWorks() {
     }
   }, []);
 
-  const genres = ["all", ...Array.from(new Set(books.map((book) => book.genre)))];
+  const genres = [
+    "all",
+    ...Array.from(
+      new Set(
+        books.flatMap((book) => (book.genres ? book.genres : []))
+      )
+    ),
+  ];
 
   const filteredBooks = books.filter((book) => {
     const matchesSearch =
       book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       book.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesGenre = selectedGenre === "all" || book.genre === selectedGenre;
-    return matchesSearch && matchesGenre;
+    const matchesGenre =
+      selectedGenre === "all" ||
+      (book.genres && book.genres.includes(selectedGenre));
+    const matchesFormat =
+      selectedFormat === "all" ||
+      (book.workFormat && book.workFormat === selectedFormat);
+    return matchesSearch && matchesGenre && matchesFormat;
   });
 
   const sortedBooks = [...filteredBooks].sort((a, b) => b.year - a.year);
@@ -72,6 +85,33 @@ export function AllWorks() {
               </button>
             ))}
           </div>
+
+          {/* Format Filter */}
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setSelectedFormat("all")}
+              className={`px-4 py-2 rounded-full text-sm transition-colors ${
+                selectedFormat === "all"
+                  ? "bg-neutral-900 text-white"
+                  : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+              }`}
+            >
+              Все форматы
+            </button>
+            {WORK_FORMATS.map((format) => (
+              <button
+                key={format}
+                onClick={() => setSelectedFormat(format)}
+                className={`px-4 py-2 rounded-full text-sm transition-colors ${
+                  selectedFormat === format
+                    ? "bg-neutral-900 text-white"
+                    : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+                }`}
+              >
+                {format}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Results Count */}
@@ -98,8 +138,12 @@ export function AllWorks() {
                 <div className="p-6">
                   <div className="flex flex-wrap items-center gap-2 mb-3">
                     <span className="inline-flex items-center gap-1 bg-neutral-100 px-3 py-1 rounded-full text-sm text-neutral-700">
+                      <BookMarked className="w-3 h-3" />
+                      {book.workFormat ?? "—"}
+                    </span>
+                    <span className="inline-flex items-center gap-1 bg-neutral-100 px-3 py-1 rounded-full text-sm text-neutral-700">
                       <Tag className="w-3 h-3" />
-                      {book.genre}
+                      {book.genres?.join(", ")}
                     </span>
                     <span className="inline-flex items-center gap-1 text-sm text-neutral-600">
                       <Calendar className="w-3 h-3" />

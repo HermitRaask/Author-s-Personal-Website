@@ -15,7 +15,7 @@ export function LoginModal({ isOpen, onClose, onLogin }: LoginModalProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "admin123") {
+    if (password === "ILoveChisato") {
       onLogin(password);
       setPassword("");
       setError("");
@@ -50,9 +50,6 @@ export function LoginModal({ isOpen, onClose, onLogin }: LoginModalProps) {
               placeholder="Введите пароль"
             />
             {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
-            <p className="text-neutral-500 text-sm mt-2">
-              Тестовый пароль: admin123
-            </p>
           </div>
 
           <button
