@@ -12,10 +12,14 @@ export function BookReader() {
   const [book, setBook] = useState<Book | null>(null);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [chapterId]);
+
+  useEffect(() => {
     const loadBook = () => {
       const savedBooks = localStorage.getItem("books");
       let books: Book[] = [];
-      
+
       if (savedBooks) {
         books = migrateBooks(JSON.parse(savedBooks));
       } else {
@@ -26,7 +30,7 @@ export function BookReader() {
         });
         return;
       }
-      
+
       const foundBook = books.find((b) => b.id === parseInt(id || "0"));
       setBook(foundBook || null);
     };
@@ -129,11 +133,10 @@ export function BookReader() {
           <button
             onClick={goToPrevious}
             disabled={!hasPrevious}
-            className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${
-              hasPrevious
-                ? "bg-neutral-900 text-white hover:bg-neutral-800"
-                : "bg-neutral-200 text-neutral-400 cursor-not-allowed"
-            }`}
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${hasPrevious
+              ? "bg-neutral-900 text-white hover:bg-neutral-800"
+              : "bg-neutral-200 text-neutral-400 cursor-not-allowed"
+              }`}
           >
             <ChevronLeft className="w-5 h-5" />
             Предыдущая глава
@@ -142,11 +145,10 @@ export function BookReader() {
           <button
             onClick={goToNext}
             disabled={!hasNext}
-            className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${
-              hasNext
-                ? "bg-neutral-900 text-white hover:bg-neutral-800"
-                : "bg-neutral-200 text-neutral-400 cursor-not-allowed"
-            }`}
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${hasNext
+              ? "bg-neutral-900 text-white hover:bg-neutral-800"
+              : "bg-neutral-200 text-neutral-400 cursor-not-allowed"
+              }`}
           >
             Следующая глава
             <ChevronRight className="w-5 h-5" />
@@ -161,11 +163,10 @@ export function BookReader() {
               <Link
                 key={chapter.id}
                 to={`/book/${id}/read/${chapter.id}`}
-                className={`px-4 py-2 rounded-lg transition-colors ${
-                  chapter.id === currentChapter.id
-                    ? "bg-neutral-900 text-white"
-                    : "bg-neutral-50 text-neutral-700 hover:bg-neutral-100"
-                }`}
+                className={`px-4 py-2 rounded-lg transition-colors ${chapter.id === currentChapter.id
+                  ? "bg-neutral-900 text-white"
+                  : "bg-neutral-50 text-neutral-700 hover:bg-neutral-100"
+                  }`}
               >
                 {chapter.title}
               </Link>
